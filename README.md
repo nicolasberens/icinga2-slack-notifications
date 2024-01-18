@@ -13,6 +13,11 @@ Native, easy to use Icinga2 `NotificationCommand` to send Host and Service notif
 
 Also available on <a href="https://exchange.icinga.com/richardhauswald/icinga2-slack-notifications" target="_blank">Icinga2 exchange portal</a>
 
+
+## Changes to Upstream
+This is a fork from: https://github.com/nisabek/icinga2-slack-notifications with the following changes added:
+- changed generated URLs to be compatible with [icingadb-web](https://github.com/Icinga/icingadb-web)
+
 ## What will I get?
 * Awesome Slack notifications:
 
@@ -35,33 +40,33 @@ Also available on <a href="https://exchange.icinga.com/richardhauswald/icinga2-s
 
 ## Why another approach?
 
-We found the following 2 existing Icinga2 to Slack integrations. 
+We found the following 2 existing Icinga2 to Slack integrations.
 
 * https://github.com/spjmurray/slack-icinga2
 
-  This plugin provides a polling interface towards Icinga2, giving the possibility to query the Icinga2 API and get information. 
-  
+  This plugin provides a polling interface towards Icinga2, giving the possibility to query the Icinga2 API and get information.
+
   Since we cannot open our firewalls to enable access for slack servers to our Icinga2 instances, we need to
   have Icinga2 sending push notifications to Slack to report our Host and Service state changes.
 * https://github.com/jjethwa/icinga2-slack-notification
-  
-  The plugin provides the possibility to send NotificationCommand to slack, however we found the following 
+
+  The plugin provides the possibility to send NotificationCommand to slack, however we found the following
   downsides to be show stoppers for us:
    * Does not use Lambdas!
    * The Integration is time consuming and cumbersome
-   * The author requires you to modify his source files in order to configure the slack webhook and channel. So we'd 
+   * The author requires you to modify his source files in order to configure the slack webhook and channel. So we'd
    have to configure everything again when we have to install an update of that integration.
    * No Debian package available, which leads to increased installation and maintenance effort.
    * Numerous bugs since the host output is not properly encoded:
      * as shell argument before it's passed to the shell script
      * as JSON before it's send to Slacks REST API
 
-## Installation 
+## Installation
 
 ### Installation using Debian package
 
 > !NOTE: At this moment debian package is behind the master code. If you want to use this plugin with Icinga Director, please make sure to install from Git (see below)
-We're working on updating the repo in the meantime. 
+We're working on updating the repo in the meantime.
 
 We use [reprepro](https://mirrorer.alioth.debian.org/) to distribute our package from github.
 You would need to install `apt-transport-https` that supports adding an `https` based repository to the debian repo list.
@@ -75,18 +80,18 @@ foo@bar:~# add-apt-repository "deb https://raw.githubusercontent.com/nisabek/ici
 foo@bar:~# apt-get update
 ```
 
-You are now ready to install the plugin with 
+You are now ready to install the plugin with
 
 ```console
 foo@bar:~# apt-get install icinga2-slack-notifications
 ```
 
-This will create the plugin files in the correct `icinga2` conf directory. 
+This will create the plugin files in the correct `icinga2` conf directory.
 
 ### Installation using git
 
 1. Clone the repository and copy the relevant folder into your Icinga2 `/etc/icinga2/conf.d` directory
- 
+
 ```console
 foo@bar:~# git clone git@github.com:nisabek/icinga2-slack-notifications.git /opt/icinga2-slack-notifications
 foo@bar:~# cp -r /opt/icinga2-slack-notifications/src/slack-notifications /etc/icinga2/conf.d/
@@ -94,21 +99,21 @@ foo@bar:~# cp -r /opt/icinga2-slack-notifications/src/slack-notifications /etc/i
 
 2. Use the `slack-notifications-user-configuration.conf.template` file as reference to configure your Slack Webhook URL and Icinga2 Base URL to create your own
  `slack-notifications-user-configuration.conf`
- 
+
 ```console
 foo@bar:~# cp /etc/icinga2/conf.d/slack-notifications/slack-notifications-user-configuration.conf.template /etc/icinga2/conf.d/slack-notifications/slack-notifications-user-configuration.conf
 ```
- 
+
 3. Fix permissions
- 
+
 ```console
 foo@bar:~# chown -R root:nagios /etc/icinga2/conf.d/slack-notifications
 foo@bar:~# chmod 0750 /etc/icinga2/conf.d/slack-notifications
 foo@bar:~# chmod 0640 /etc/icinga2/conf.d/slack-notifications/*
 ```
 
-### Configuration 
- 
+### Configuration
+
 #### Icinga2 features
 
 In order for the slack-notifications to work you need at least the `checker`,  `command` and `notification` icinga2 features enabled.
@@ -119,7 +124,7 @@ In order to see the list of currently enabled features execute the following com
 foo@bar:~# icinga2 feature list
 ```
 
-In order to enable a feature use 
+In order to enable a feature use
 
 ```console
 foo@bar:~# icinga2 feature enable FEATURE_NAME
@@ -145,7 +150,7 @@ template Notification "slack-notifications-user-configuration" {
    max_check_attempts = 5
    check_interval = 1m
    retry_interval = 30s
- 
+
    vars.slack_notifications = "enabled"
  }
  ```
@@ -157,7 +162,7 @@ In order to enable the slack-notifications **for Hosts** add `vars.slack_notific
    max_check_attempts = 5
    check_interval = 1m
    retry_interval = 30s
- 
+
    vars.slack_notifications = "enabled"
  }
  ```
@@ -192,10 +197,10 @@ You can customize the following parameters of slack-notifications :
 
 In order to do so, place the desired parameter into `slack-notifications-user-configuration.conf` file.
 
-Note 
+Note
 > Objects as well as templates themselves can import an arbitrary number of other templates. Attributes inherited from a template can be overridden in the object if necessary.
 
-The `slack-notifications-user-configuration` section applies to both Host and Service, whereas the 
+The `slack-notifications-user-configuration` section applies to both Host and Service, whereas the
 `slack-notifications-user-configuration-hosts` and `slack-notifications-user-configuration-services` sections apply to Host and Service respectively
 
 
@@ -219,7 +224,7 @@ template Notification "slack-notifications-user-configuration-services" {
     import "slack-notifications-default-configuration-services"
 
     interval = 3m
-    
+
     vars.slack_notifications_channel = "#monitoring_alerts_for_service"
 }
 ```
@@ -245,7 +250,7 @@ template Notification "slack-notifications-user-configuration" {
        "FLAPPINGSTART" = "small_red_triangle",
        "FLAPPINGEND" = "small_red_triangle_down",
        "CUSTOM" = "speaking_head_in_silhouette"
-    }    
+    }
     ...
 ```
 
@@ -264,12 +269,12 @@ template Notification "slack-notifications-user-configuration" {
 }
 ```
 
-If you, for some reason, want to disable the slack-notifications from icinga2 change the following parameter inside the 
+If you, for some reason, want to disable the slack-notifications from icinga2 change the following parameter inside the
 corresponding Host or Service configuration object/template:
 
 `vars.slack_notifications == "disabled"`
 
-Besides configuring the slack-notifications parameters you can also configure other Icinga2 specific configuration 
+Besides configuring the slack-notifications parameters you can also configure other Icinga2 specific configuration
 parameters of the Host and Service, e.g.:
 * types
 * user_groups
@@ -277,7 +282,7 @@ parameters of the Host and Service, e.g.:
 * period
 
 ## How it works
-slack-notifications uses the icinga2 native [NotificationCommand] (https://docs.icinga.com/icinga2/latest/doc/module/icinga2/chapter/object-types#objecttype-notificationcommand) 
+slack-notifications uses the icinga2 native [NotificationCommand] (https://docs.icinga.com/icinga2/latest/doc/module/icinga2/chapter/object-types#objecttype-notificationcommand)
 to collect the required data and send a message to configured slack channel using `curl`
 
 The implementation can be found in `slack-notifications-command.conf` and it uses Lambdas!
@@ -287,7 +292,7 @@ The implementation can be found in `slack-notifications-command.conf` and it use
 Since the official docker image of icinga2 seems not to be maintained, we've been using [jordan's icinga2 image](https://hub.docker.com/r/jordan/icinga2/)
 to test the notifications manually.
 
-Usual procedure for us to test the plugin is to 
+Usual procedure for us to test the plugin is to
 
 * configure the `src/slack-notifications/slack-notifications-configuration.conf` file according to documentation
 * configure a test `src/templates.conf` which contains the slack-notifications enabled for host and/or service
@@ -302,7 +307,7 @@ foo@bar:~# docker cp src/slack-notifications slack-enabled-icinga2:/etc/icinga2/
 foo@bar:~# docker restart slack-enabled-icinga2
 ```
 
-after that navigate to `http://localhost:8081/icingaweb2` and try out some notifications. 
+after that navigate to `http://localhost:8081/icingaweb2` and try out some notifications.
 
 We understand that this is far from automated testing, and we will be happy to any contributions that would improve the procedure.
 
@@ -315,7 +320,7 @@ foo@bar:~# icinga2 feature enable debuglog
 
 After that you should see the logs in `/var/log/icinga2/debug.log` file. All the slack-notifications specific logs are pre-pended with "debug/slack-notifications"
 
-Use the following grep for troubleshooting: 
+Use the following grep for troubleshooting:
 
 ```console
 foo@bar:~# grep "warning/PluginNotificationTask\|slack-notifications" /var/log/icinga2/debug.log
@@ -331,12 +336,12 @@ foo@bar:~# tail -f /var/log/icinga2/debug.log | grep "warning/PluginNotification
 
 ## Running with Icinga Director
 
-There has been some discussion [over here](https://github.com/nisabek/icinga2-slack-notifications/issues/5) on how to run the plugin with Icinga Director. We'd appreciate somebody going over this part of documentation and verifying it. 
- 
+There has been some discussion [over here](https://github.com/nisabek/icinga2-slack-notifications/issues/5) on how to run the plugin with Icinga Director. We'd appreciate somebody going over this part of documentation and verifying it.
+
 Main points to make it work:
 
 * Use the git version, not the debian package.
-* Create a custom variable for slack_notifications as a string. 
+* Create a custom variable for slack_notifications as a string.
 * Run the kickstart wizard: https://github.com/nisabek/icinga2-slack-notifications/issues/5#issuecomment-369571754
 
 ### Latest how-to on Icinga Director
